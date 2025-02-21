@@ -7,7 +7,10 @@ app = Flask(__name__)
 
 @app.route('/test', methods=["GET"])
 def testApp():
-    res = ResponseBuilder.success(None,"server is working")
+    try:
+        res = ResponseBuilder.success(None,"server is working")
+    except Exception as e:
+        res = ResponseBuilder.error("Server Connection failed", str(e), 500)
     return jsonify(res)
 
 @app.route("/predict", methods=["POST"])
@@ -17,16 +20,16 @@ def predict_image():
         
         if data :
             image = Image.open(io.BytesIO(data.read()))
-            print("data", str(image))
             processedImage = PredictClass.preprocessImage(image)
             predClass = PredictClass.predictClass(processedImage)
-            print("pred", predClass)
-            res = ResponseBuilder.success({"class": predClass}, "Class Predicted")
+            if not predClass:
+                res = ResponseBuilder.error("Class Prediction Failed", None, 204)
+            res = ResponseBuilder.success({"class": predClass}, "Class Predicted Success")
         else:
-            res = ResponseBuilder.error("File not found!")
+            res = ResponseBuilder.error("File not found!", None, 404)
 
     except Exception as e:
-        res = ResponseBuilder.error("something went wrong", e)
+        res = ResponseBuilder.error("something went wrong", str(e), 500)
     return jsonify(res)
     
 
