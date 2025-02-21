@@ -81,4 +81,4 @@ $env:FLASK_APP = "app.py" # Windows (PowerShell)
 - Predict Class:
     ```sh
     http://localhost:5050/predict
-    ``
+    ```
